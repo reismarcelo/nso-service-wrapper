@@ -1,23 +1,25 @@
-This is a generated Python package, made by:
+Wrapper package
+-----------------
 
-  ncs-make-package --service-skeleton python-and-template \
-                   --component-class main.Main wrapper
+Skeleton of a wrapper action that receives northbound calls with a single document-id parameter and
+create/modify/delete services based on parameters retrieved from a database using document-id as key.
 
-It contains a dummy YANG model which implements a minimal Service
-and an Action that doesn't really do anything useful. They are
-there just to get you going.
+The database portion is implemented using a json file named service-info.json:
 
-You will also find two test cases in:
-
-  test/internal/lux/service/
-  test/internal/lux/action/
-
-that you can run if you have the 'lux' testing tool.
-Your top Makefile also need to implement some Make targets
-as described in the Makefiles of the test cases.
-You can also just read the corresponding run.lux tests and
-do them manually if you wish.
-
-The 'lux' test tool can be obtained from:
-
-  https://github.com/hawk/lux.git
+{
+  "100": {
+    "operation": "create",
+    "device_name": "IOS-1",
+    "loopback_id": 1,
+    "description": "### Loopback 1 - testing 1234 ###"
+  },
+  "101": {
+    "operation": "delete",
+    "device_name": "IOS-1"
+  },
+  "102": {
+    "operation": "update",
+    "device_name": "IOS-1",
+    "loopback_id": 1,
+    "description": "### Loopback 1 - testing 12345 ###"
+  }
