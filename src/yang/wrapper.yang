@@ -1,0 +1,63 @@
+// =========================================================================
+//  WRAPPER PACKAGE MODEL
+// =========================================================================
+
+module wrapper {
+
+  namespace "http://com/ciscoas/services/wrapper";
+  prefix wpr;
+
+  import ietf-inet-types { prefix inet; }
+  import tailf-common { prefix tailf; }
+  import tailf-ncs { prefix ncs; }
+
+  organization "Cisco Systems, Inc.";
+
+  contact
+    " Marcelo Reis
+      mareis@cisco.com
+    ";
+
+  description
+    " Skeleton of a wrapper action that receives northbound calls with a single document-id parameter and
+      create/modify/delete services based on parameters retrieved from a database using document-id as key.
+    ";
+
+
+  // =========================================================================
+  //  REVISION
+  // =========================================================================
+
+  revision 2018-03-12 {
+    description
+      "Initial revision.";
+  }
+
+
+  // =========================================================================
+  //  ACTIONS
+  // =========================================================================
+
+  container wrapper {
+    tailf:info "Northbound abstraction wrappers";
+
+    tailf:action service-call {
+      tailf:info "Document-id based services";
+      tailf:actionpoint wrapper-action;
+      input {
+        leaf document-id {
+          type string;
+        }
+      }
+      output {
+        leaf success {
+          type string;
+        }
+        leaf failure {
+          type string;
+        }
+      }
+    }
+  }
+
+}
