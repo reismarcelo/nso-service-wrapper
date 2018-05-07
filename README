@@ -1,25 +1,31 @@
 Wrapper package
 -----------------
 
-Skeleton of a wrapper action that receives northbound calls with a single document-id parameter and
-create/modify/delete services based on parameters retrieved from a database using document-id as key.
+Skeleton of a wrapper action that receives northbound calls with service-name, operation-id parameters and
+create/modify/delete services based on parameters retrieved from a database using service-reference (i.e.
+<service-name>-<operation-id>) as key.
 
 The database portion is implemented using a json file named service-info.json:
 
 {
-  "100": {
-    "operation": "create",
-    "device_name": "IOS-1",
-    "loopback_id": 1,
-    "description": "### Loopback 1 - testing 1234 ###"
+  "loopback-100": {
+	"operation_type": "create",
+	"validate": "false",
+	"device_name": "IOS-1",
+	"loopback_id": 1,
+	"description": "### Loopback 1 - testing 1234 ###"
   },
-  "101": {
-    "operation": "delete",
-    "device_name": "IOS-1"
+  "loopback-101": {
+	"operation_type": "delete",
+	"validate": "false",
+	"device_name": "IOS-1",
+	"loopback_id": 1
   },
-  "102": {
-    "operation": "update",
-    "device_name": "IOS-1",
-    "loopback_id": 1,
-    "description": "### Loopback 1 - testing 12345 ###"
+  "loopback-102": {
+	"operation_type": "modify",
+	"validate": "false",
+	"device_name": "IOS-1",
+	"loopback_id": 1,
+	"description": "### Loopback 1 - testing 12345 ###"
   }
+}

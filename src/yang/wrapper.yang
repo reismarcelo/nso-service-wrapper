@@ -28,6 +28,11 @@ module wrapper {
   //  REVISION
   // =========================================================================
 
+  revision 2018-05-04 {
+    description
+      "Added support for multiple services and a generic service handler using templates.";
+  }
+
   revision 2018-03-12 {
     description
       "Initial revision.";
@@ -45,7 +50,10 @@ module wrapper {
       tailf:info "Document-id based services";
       tailf:actionpoint wrapper-action;
       input {
-        leaf document-id {
+        leaf service-name {
+          type string;
+        }
+        leaf operation-id {
           type string;
         }
       }
