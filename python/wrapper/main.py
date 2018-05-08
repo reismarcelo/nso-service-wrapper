@@ -41,10 +41,11 @@ class WrapperAction(Action):
 def service_handler_cls(service_name, custom_handlers_module=wrapper.customhandlers):
     def is_service_class(attr_name):
         svc_class = getattr(custom_handlers_module, attr_name)
-        return \
-            attr_name.startswith('Service') and \
-            isinstance(svc_class, type) and \
+        return (
+            attr_name.startswith('Service') and
+            isinstance(svc_class, type) and
             issubclass(svc_class, custom_handlers_module.BaseNsoService)
+        )
 
     def service_class_info(service_class_name):
         service_cls = getattr(custom_handlers_module, service_class_name)
