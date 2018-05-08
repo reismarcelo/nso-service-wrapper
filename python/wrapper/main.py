@@ -2,9 +2,7 @@
 import ncs
 from ncs.dp import Action
 from _ncs.dp import action_set_timeout
-import os
-import json
-from wrapper.handlers import SvcOp
+from wrapper.handlers import ServiceArgs
 import wrapper.customhandlers
 
 
@@ -55,56 +53,6 @@ def service_handler_cls(service_name, custom_handlers_module=wrapper.customhandl
     available_services = dict(map(service_class_info, filter(is_service_class, dir(custom_handlers_module))))
 
     return available_services.get(service_name, custom_handlers_module.BaseNsoService)
-
-
-class ServiceArgs(object):
-    _mandatory_args = [
-        'operation_type',
-        'validate',
-    ]
-
-    def __init__(self, service_name, operation_id):
-        self._service_name = service_name
-        self._operation_id = operation_id
-
-        try:
-            service_dict = self._load()
-        except KeyError as e:
-            raise NBJsonError('No service record found for {}'.format(e))
-
-        for field in ServiceArgs._mandatory_args:
-            if field not in service_dict:
-                raise NBJsonError('A mandatory service parameter is missing: {}'.format(field))
-        for key in service_dict.keys():
-            if key.startswith('_'):
-                raise NBJsonError('Service arguments cannot start with "_": {}'.format(key))
-
-        self._operation_type = SvcOp(service_dict['operation_type'])
-        self._validate = ServiceArgs.boolean_val(service_dict.get('validate', 'false'))
-
-        self.__dict__.update(service_dict)
-
-    def _load(self):
-        with open(os.path.join('service-info.json')) as f:
-            return json.load(f)[self._service_reference]
-
-    @property
-    def _service_reference(self):
-        return '{}-{}'.format(self._service_name, self._operation_id)
-
-    @staticmethod
-    def boolean_val(value):
-        if isinstance(value, str):
-            return value.lower() == 'true'
-        return bool(value)
-
-
-class WrapperException(Exception):
-    pass
-
-
-class NBJsonError(WrapperException):
-    pass
 
 
 # ---------------------------------------------

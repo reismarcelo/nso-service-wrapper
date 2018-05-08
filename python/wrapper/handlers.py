@@ -1,6 +1,10 @@
 import ncs
+from _ncs.maapi import (COMMIT_NCS_SYNC_COMMIT_QUEUE, NCS_COMMIT_QUEUE_COMPLETED, NCS_COMMIT_QUEUE_NONE,
+                        NCS_COMMIT_QUEUE_TIMEOUT)
+import os
 import json
 from enum import Enum
+from wrapper.exceptions import SBError, NBJsonError
 
 
 class SvcOp(Enum):
@@ -11,6 +15,52 @@ class SvcOp(Enum):
     @property
     def op_method(self):
         return dict(zip(SvcOp, ['op_create', 'op_modify', 'op_delete']))[self]
+
+
+class ServiceArgs(object):
+    _mandatory_args = [
+        'operation_type',
+    ]
+    # Whether to commit via commit-queue or not
+    COMMIT_QUEUE = True
+    # Timeout -1 means infinity, which is bounded by action_set_timeout
+    COMMIT_QUEUE_SYNC_TIMEOUT = 60
+
+    def __init__(self, service_name, operation_id):
+        self._service_name = service_name
+        self._operation_id = operation_id
+
+        try:
+            service_dict = self._load()
+        except KeyError as e:
+            raise NBJsonError('No service record found for {}'.format(e))
+
+        for field in ServiceArgs._mandatory_args:
+            if field not in service_dict:
+                raise NBJsonError('A mandatory service parameter is missing: {}'.format(field))
+        for key in service_dict.keys():
+            if key.startswith('_'):
+                raise NBJsonError('Service arguments cannot start with "_": {}'.format(key))
+
+        # Service variables used internally by wrapper start with _
+        self._operation_type = SvcOp(service_dict['operation_type'])
+        self._validate = ServiceArgs.boolean_val(service_dict.get('validate', 'false'))
+
+        self.__dict__.update(service_dict)
+
+    def _load(self):
+        with open(os.path.join('service-info.json')) as f:
+            return json.load(f)[self._service_reference]
+
+    @property
+    def _service_reference(self):
+        return '{}-{}'.format(self._service_name, self._operation_id)
+
+    @staticmethod
+    def boolean_val(value):
+        if isinstance(value, str):
+            return value.lower() == 'true'
+        return bool(value)
 
 
 class BaseNsoService(object):
@@ -43,8 +93,21 @@ class BaseNsoService(object):
                 # With NSO 4.6 or later we should use this method instead
                 # return_value = write_t.apply_with_result(flags=_ncs.maapi.COMMIT_NCS_DRY_RUN_CLI)
             else:
-                self.log.info('Commit')
-                write_t.apply()
+                self.log.info('Commit start')
+                if ServiceArgs.COMMIT_QUEUE:
+                    write_t.apply(flags=COMMIT_NCS_SYNC_COMMIT_QUEUE)
+                    q_id, q_status = write_t.commit_queue_result(timeout=ServiceArgs.COMMIT_QUEUE_SYNC_TIMEOUT)
+                    if q_status not in {NCS_COMMIT_QUEUE_COMPLETED, NCS_COMMIT_QUEUE_NONE}:
+                        if q_status == NCS_COMMIT_QUEUE_TIMEOUT:
+                            err_msg = 'Timeout waiting for commit-queue item to complete: {}'.format(q_id)
+                        else:
+                            err_msg = 'Commit-queue item failed with status code ({})'.format(q_status)
+
+                        raise SBError(err_msg)
+                else:
+                    write_t.apply()
+
+                self.log.info('Commit complete')
 
         return return_value
 
