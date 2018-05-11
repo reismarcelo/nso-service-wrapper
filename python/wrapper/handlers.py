@@ -1,10 +1,18 @@
 import ncs
-from _ncs.maapi import (COMMIT_NCS_SYNC_COMMIT_QUEUE, NCS_COMMIT_QUEUE_COMPLETED, NCS_COMMIT_QUEUE_NONE,
-                        NCS_COMMIT_QUEUE_TIMEOUT)
 import os
 import json
 from enum import Enum
 from wrapper.exceptions import SBError, NBJsonError
+
+
+class Flags(object):
+    # TODO: In 4.6, these flags are already present. Replace with an import:
+    # from _ncs.maapi import (COMMIT_NCS_SYNC_COMMIT_QUEUE, NCS_COMMIT_QUEUE_COMPLETED, NCS_COMMIT_QUEUE_NONE,
+    #                         NCS_COMMIT_QUEUE_TIMEOUT)
+    COMMIT_NCS_SYNC_COMMIT_QUEUE = 512
+    NCS_COMMIT_QUEUE_COMPLETED = 2
+    NCS_COMMIT_QUEUE_NONE = 0
+    NCS_COMMIT_QUEUE_TIMEOUT = 3
 
 
 class SvcOp(Enum):
@@ -95,10 +103,10 @@ class BaseNsoService(object):
             else:
                 self.log.info('Commit start')
                 if ServiceArgs.COMMIT_QUEUE:
-                    write_t.apply(flags=COMMIT_NCS_SYNC_COMMIT_QUEUE)
+                    write_t.apply(flags=Flags.COMMIT_NCS_SYNC_COMMIT_QUEUE)
                     q_id, q_status = write_t.commit_queue_result(timeout=ServiceArgs.COMMIT_QUEUE_SYNC_TIMEOUT)
-                    if q_status not in {NCS_COMMIT_QUEUE_COMPLETED, NCS_COMMIT_QUEUE_NONE}:
-                        if q_status == NCS_COMMIT_QUEUE_TIMEOUT:
+                    if q_status not in {Flags.NCS_COMMIT_QUEUE_COMPLETED, Flags.NCS_COMMIT_QUEUE_NONE}:
+                        if q_status == Flags.NCS_COMMIT_QUEUE_TIMEOUT:
                             err_msg = 'Timeout waiting for commit-queue item to complete: {}'.format(q_id)
                         else:
                             err_msg = 'Commit-queue item failed with status code ({})'.format(q_status)
