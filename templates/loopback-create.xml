@@ -1,0 +1,11 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+    <services xmlns="http://tail-f.com/ns/ncs">
+        <loopback xmlns="http://com/ciscoas/services/loopback">
+            <device>
+                <name>{$device_name}</name>
+                <description>### Loopback {$loopback_id} - testing 123 ###</description>
+                <loopback-id>{$loopback_id}</loopback-id>
+            </device>
+        </loopback>
+    </services>
+</config-template>

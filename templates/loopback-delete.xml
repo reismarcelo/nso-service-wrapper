@@ -1,0 +1,9 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+    <services xmlns="http://tail-f.com/ns/ncs">
+        <loopback xmlns="http://com/ciscoas/services/loopback">
+            <device tags="delete">
+                <name>{$device_name}</name>
+            </device>
+        </loopback>
+    </services>
+</config-template>

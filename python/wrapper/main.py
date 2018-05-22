@@ -37,6 +37,14 @@ class WrapperAction(Action):
 # UTILS
 # ---------------------------------------------
 def service_handler_cls(service_name, custom_handlers_module=wrapper.customhandlers):
+    """
+    Returns a service handler class for the provided service name. That is either a custom service handler class
+    (subclass of BaseNsoService), or BaseNsoService itself if no custom handler is found.
+
+    :param service_name: Name of the service
+    :param custom_handlers_module: Module containing
+    :return: service handler class
+    """
     def is_service_class(attr_name):
         svc_class = getattr(custom_handlers_module, attr_name)
         return (
