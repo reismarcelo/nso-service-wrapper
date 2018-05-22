@@ -3,6 +3,7 @@ import ncs
 from ncs.dp import Action
 from _ncs.dp import action_set_timeout
 from wrapper.handlers import ServiceArgs
+from wrapper.exceptions import WrapperException
 import wrapper.customhandlers
 
 
@@ -18,7 +19,7 @@ class WrapperAction(Action):
         try:
             service_params = ServiceArgs(input.service_name, input.operation_id)
 
-            service_handler = service_handler_cls(input.service_name)(service_params, self.log)
+            service_handler = ServiceRegistry.get(input.service_name)(service_params, self.log)
 
             result = service_handler(uinfo)
 
@@ -36,31 +37,46 @@ class WrapperAction(Action):
 # ---------------------------------------------
 # UTILS
 # ---------------------------------------------
-def service_handler_cls(service_name, custom_handlers_module=wrapper.customhandlers):
-    """
-    Returns a service handler class for the provided service name. That is either a custom service handler class
-    (subclass of BaseNsoService), or BaseNsoService itself if no custom handler is found.
+class ServiceRegistry(object):
 
-    :param service_name: Name of the service
-    :param custom_handlers_module: Module containing
-    :return: service handler class
-    """
-    def is_service_class(attr_name):
-        svc_class = getattr(custom_handlers_module, attr_name)
-        return (
-            attr_name.startswith('Service') and
-            isinstance(svc_class, type) and
-            issubclass(svc_class, custom_handlers_module.BaseNsoService)
-        )
+    _custom_handlers_module = wrapper.customhandlers
 
-    def service_class_info(service_class_name):
-        service_cls = getattr(custom_handlers_module, service_class_name)
-        return service_cls.service_name, service_cls
+    # _registered_services is {<service_name>: <service handler class>, ...}
+    _registered_services = dict()
 
-    # available_services is {<service_name>: <service handler class>, ...}
-    available_services = dict(map(service_class_info, filter(is_service_class, dir(custom_handlers_module))))
+    @classmethod
+    def load_custom_handlers(cls):
+        """
+        Search _custom_handlers_module for service handler classes and populate _registered_services accordingly
+        :return: None
+        """
+        def is_service_class(attr_name):
+            service_cls = getattr(cls._custom_handlers_module, attr_name)
+            return (
+                    attr_name.startswith('Service') and
+                    isinstance(service_cls, type) and
+                    issubclass(service_cls, cls._custom_handlers_module.BaseNsoService)
+            )
 
-    return available_services.get(service_name, custom_handlers_module.BaseNsoService)
+        def service_info(service_cls_name):
+            service_cls = getattr(cls._custom_handlers_module, service_cls_name)
+            return service_cls.service_name, service_cls
+
+        for svc_name, svc_class in map(service_info, filter(is_service_class, dir(cls._custom_handlers_module))):
+            if svc_name in cls._registered_services:
+                raise WrapperException('Duplicate service handler name found: {}'.format(svc_name))
+            else:
+                cls._registered_services[svc_name] = svc_class
+
+    @classmethod
+    def get(cls, service_name):
+        """
+        Returns a service handler class for the provided service name. That is either a custom service handler class
+        (subclass of BaseNsoService), or BaseNsoService itself when no custom handler is found.
+        :param service_name: Name of the service
+        :return: service handler class
+        """
+        return cls._registered_services.get(service_name, cls._custom_handlers_module.BaseNsoService)
 
 
 # ---------------------------------------------
@@ -68,9 +84,10 @@ def service_handler_cls(service_name, custom_handlers_module=wrapper.customhandl
 # ---------------------------------------------
 class Main(ncs.application.Application):
     def setup(self):
-        # The application class sets up logging for us. It is accessible
-        # through 'self.log' and is a ncs.log.Log instance.
         self.log.info('Main RUNNING')
+
+        # Load service handlers
+        ServiceRegistry.load_custom_handlers()
 
         # Registration of action callbacks
         self.register_action('wrapper-action', WrapperAction)
