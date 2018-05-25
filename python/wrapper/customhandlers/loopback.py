@@ -1,20 +1,10 @@
 import ncs
 from wrapper.handlers import BaseNsoService
+from wrapper.service_registry import register
 
 
-class ServiceRsvpte(BaseNsoService):
-    service_name = "rsvpte"
-
-    def op_create(self, user_info, root):
-        self.log.info('Custom op_create')
-
-    def op_delete(self, user_info, root):
-        self.log.info('Custom op_delete')
-
-
+@register("loopback")
 class ServiceLoopback(BaseNsoService):
-    service_name = "loopback"
-
     def op_create(self, user_info, root):
         self.log.info('Custom op_create')
         dev = root.ncs__services.loopback__loopback.loopback__device.create(self.service_args.device_name)

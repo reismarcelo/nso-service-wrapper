@@ -108,9 +108,12 @@ class BaseNsoService(object):
     When service instantiation require more logic than a config template can provide, custom handler methods can be
     written by subclassing BaseNsoService and overriding op_create, op_modify and op_delete as needed.
     """
-    service_name = None
-
     def __init__(self, service_args, logger):
+        """
+        Initialization of BaseNsoService
+        :param service_args: ServiceArgs instance containing the service parameters
+        :param logger: logger object
+        """
         self.service_args = service_args
         self.log = logger
 
@@ -209,9 +212,6 @@ class BaseNsoService(object):
         self.log.info('Default op_delete, applying template: {}'.format(template))
         # Context is set to root.services because maagic.Root object cannot be used as a context node in Template
         apply_template(template, root.services, self.service_args._template_vars())
-
-    def __str__(self):
-        return self.service_name
 
 
 def apply_template(template_name, context, var_dict=None, none_value=''):
