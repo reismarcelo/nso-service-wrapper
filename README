@@ -1,7 +1,7 @@
 Wrapper package
 -----------------
 
-Skeleton of a wrapper action that receives northbound calls with service-name, operation-id parameters and create/modify/delete services based on parameters retrieved from a database using service-reference (i.e. <service-name>-<operation-id>) as key.
+Service wrapper action that receives northbound calls with service-name, operation-id parameters and create/modify/delete services based on parameters retrieved from a database using service-reference (i.e. <service-name>-<operation-id>) as key.
 
 For services that can be instantiated using templates, the NSO config template files need to be under the templates folder. Two files need to be created: <service name>-create.xml and <service name>-delete.xml.
 
