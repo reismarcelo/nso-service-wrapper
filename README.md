@@ -1,5 +1,4 @@
-Wrapper package
------------------
+# Wrapper package
 
 Service wrapper action that receives northbound calls with service-name, operation-id parameters and create/modify/delete services based on parameters retrieved from a database using service-reference (i.e. <service-name>-<operation-id>) as key.
 
@@ -8,6 +7,7 @@ For services that can be instantiated using templates, the NSO config template f
 For services requiring additional logic, custom handlers can be provided. They need to be in a python file under wrapper/python/wrapper/customhandlers.
 
 An example of a custom handler is provided below:
+
     from wrapper.handlers import BaseNsoService
     from wrapper.service_registry import register
 
@@ -25,52 +25,53 @@ An example of a custom handler is provided below:
 
 
 The database portion is implemented using a json file named service-info.json:
-{
-  "loopback-100": {
-	"operation_type": "create",
-	"validate": "true",
-	"device_name": "A3-ASR9K-R6",
-	"loopback_id": 20,
-	"description": "### Loopback 20 - testing 002 ###"
-  },
-  "loopback-101": {
-	"operation_type": "create",
-	"validate": "false",
-	"device_name": "A3-ASR9K-R6",
-	"loopback_id": 20,
-	"description": "### Loopback 20 - testing 002 ###"
-  },
-  "loopback-102": {
-	"operation_type": "delete",
-	"validate": "false",
-	"device_name": "A3-ASR9K-R6",
-	"loopback_id": 20
-  },
-  "loopback-200": {
-	"operation_type": "modify",
-	"validate": "false",
-	"device_name": "XR-0",
-	"loopback_id": 1,
-	"description": "### Loopback 1 - testing 333 ###"
-  },
-  "loopback-201": {
-	"operation_type": "delete",
-	"validate": "false",
-	"device_name": "XR-0",
-	"loopback_id": 1
-  },
-  "defaultloopback-300": {
-	"operation_type": "modify",
-	"validate": "false",
-	"device_name": "XR-0",
-	"loopback_id": 1,
-	"description": "### Loopback 1 - testing 333 ###"
-  },
-  "defaultloopback-301": {
-	"operation_type": "delete",
-	"validate": "false",
-	"device_name": "XR-0",
-	"loopback_id": 1
-  }
-}
+
+    {
+      "loopback-100": {
+        "operation_type": "create",
+        "validate": "true",
+        "device_name": "A3-ASR9K-R6",
+        "loopback_id": 20,
+        "description": "### Loopback 20 - testing 002 ###"
+      },
+      "loopback-101": {
+        "operation_type": "create",
+        "validate": "false",
+        "device_name": "A3-ASR9K-R6",
+        "loopback_id": 20,
+        "description": "### Loopback 20 - testing 002 ###"
+      },
+      "loopback-102": {
+        "operation_type": "delete",
+        "validate": "false",
+        "device_name": "A3-ASR9K-R6",
+        "loopback_id": 20
+      },
+      "loopback-200": {
+        "operation_type": "modify",
+        "validate": "false",
+        "device_name": "XR-0",
+        "loopback_id": 1,
+        "description": "### Loopback 1 - testing 333 ###"
+      },
+      "loopback-201": {
+        "operation_type": "delete",
+        "validate": "false",
+        "device_name": "XR-0",
+        "loopback_id": 1
+      },
+      "defaultloopback-300": {
+        "operation_type": "modify",
+        "validate": "false",
+        "device_name": "XR-0",
+        "loopback_id": 1,
+        "description": "### Loopback 1 - testing 333 ###"
+      },
+      "defaultloopback-301": {
+        "operation_type": "delete",
+        "validate": "false",
+        "device_name": "XR-0",
+        "loopback_id": 1
+      }
+    }
 

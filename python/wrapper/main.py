@@ -39,7 +39,7 @@ class WrapperAction(Action):
 # ---------------------------------------------
 class Main(ncs.application.Application):
     def setup(self):
-        self.log.info('Main RUNNING, {} registered custom service handlers.'.format(num_handlers()))
+        self.log.info('Main RUNNING, {} custom service handlers registered.'.format(num_handlers()))
 
         # Registration of action callbacks
         self.register_action('wrapper-action', WrapperAction)
