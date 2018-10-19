@@ -1,4 +1,5 @@
 import ncs
+import _ncs
 import os
 import json
 from enum import Enum
@@ -139,14 +140,15 @@ class BaseNsoService(object):
             if self.service_args._validate:
                 self.log.info('Commit dry-run')
 
-                # TODO: This dry-run method is deprecated. Need to update once running NSO 4.6 or later
-                dry_run_input = root.services.commit_dry_run.get_input()
-                dry_run_input.outformat = "native"
-                dry_run_output = root.services.commit_dry_run(dry_run_input)
-                return_value = json.dumps({device.name: device.data for device in dry_run_output.native.device})
+                # This dry-run method is deprecated, use it only for NSO < 4.6
+                # dry_run_input = root.services.commit_dry_run.get_input()
+                # dry_run_input.outformat = "native"
+                # dry_run_output = root.services.commit_dry_run(dry_run_input)
+                # return_value = json.dumps({device.name: device.data for device in dry_run_output.native.device})
 
                 # With NSO 4.6 or later we should use this method instead
-                # return_value = write_t.apply_with_result(flags=_ncs.maapi.COMMIT_NCS_DRY_RUN_CLI)
+                dry_run_output = write_t.apply_with_result(flags=_ncs.maapi.COMMIT_NCS_DRY_RUN_CLI)
+                return_value = '\n'.join(str(tag_value.v) for tag_value in dry_run_output)
             else:
                 self.log.info('Commit start')
                 if ServiceArgs._COMMIT_QUEUE:

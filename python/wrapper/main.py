@@ -29,9 +29,9 @@ class WrapperAction(Action):
         else:
             action_output = ["Service call completed successfully"]
             if result is not None:
-                action_output.append("{}".format(result))
+                action_output.append(":\n{}".format(result))
 
-            output.success = ": ".join(action_output)
+            output.success = "".join(action_output)
 
 
 # ---------------------------------------------
